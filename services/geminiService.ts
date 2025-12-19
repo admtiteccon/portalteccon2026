@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { NewsSource } from "../types";
+import { NewsSource, NewsData } from "../types";
 
 const MOCK_NEWS_DATA: Record<NewsSource, string> = {
     [NewsSource.GOINFRA]: "A GOINFRA anunciou hoje o início das obras de duplicação da GO-070 no trecho entre Itaberaí e a cidade de Goiás. O projeto, orçado em R$ 200 milhões, prevê a construção de três novos viadutos e a restauração completa do pavimento. A previsão de conclusão é de 24 meses. Adicionalmente, foi aberta licitação para a manutenção de rodovias na região nordeste do estado.",
@@ -11,25 +11,75 @@ const MOCK_NEWS_DATA: Record<NewsSource, string> = {
     [NewsSource.CBIC]: "A CBIC aponta um crescimento de 2,5% no PIB da construção civil para o próximo ano. A projeção é impulsionada por novos projetos do programa 'Minha Casa, Minha Vida' e pela queda da taxa de juros, que estimula o financiamento imobiliário e de obras de infraestrutura.",
 };
 
-export const summarizeNews = async (source: NewsSource): Promise<string> => {
-    if (!process.env.API_KEY) {
-        console.error("API_KEY not found.");
-        // Return mock data if API key is not set for local development
-        return new Promise(resolve => setTimeout(() => resolve(`Resumo para ${source} estaria aqui. Configure sua API_KEY do Gemini.`), 1000));
+const RSS_FEEDS: Record<NewsSource, string> = {
+    [NewsSource.GOINFRA]: "https://www.goinfra.go.gov.br/feed/",
+    [NewsSource.ANTT]: "https://www.gov.br/antt/pt-br/assuntos/noticias/noticias/RSS",
+    [NewsSource.MIN_TRANSPORTES]: "https://www.gov.br/transportes/pt-br/assuntos/noticias/RSS",
+    [NewsSource.DER]: "https://www.der.sp.gov.br/WebSite/Noticias/Noticias.aspx", // Placeholder as DER usually doesn't have clean RSS
+    [NewsSource.DNIT]: "https://www.gov.br/dnit/pt-br/assuntos/noticias/RSS",
+    [NewsSource.INFRA_SA]: "https://www.infrasa.gov.br/noticias?format=feed&type=rss",
+    [NewsSource.CBIC]: "https://cbic.org.br/feed/",
+};
+
+async function fetchLatestNews(source: NewsSource): Promise<{ text: string; imageUrl?: string }> {
+    try {
+        const feedUrl = RSS_FEEDS[source];
+        if (!feedUrl || feedUrl.includes(".aspx")) return { text: MOCK_NEWS_DATA[source] };
+
+        const response = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(feedUrl)}`);
+        const data = await response.json();
+
+        if (data.status === 'ok' && data.items && data.items.length > 0) {
+            const item = data.items[0];
+            let imageUrl = item.thumbnail || item.enclosure?.link;
+
+            if (!imageUrl && item.content) {
+                const imgMatch = item.content.match(/<img[^>]+src="([^">]+)"/);
+                if (imgMatch) imageUrl = imgMatch[1];
+            }
+
+            return {
+                text: `${item.title}. ${item.content || item.description || ""}`,
+                imageUrl: imageUrl
+            };
+        }
+    } catch (error) {
+        console.error(`Error fetching RSS for ${source}:`, error);
+    }
+    return { text: MOCK_NEWS_DATA[source] };
+}
+
+export const summarizeNews = async (source: NewsSource): Promise<NewsData> => {
+    const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
+
+    const { text: newsText, imageUrl } = await fetchLatestNews(source);
+
+    if (!apiKey) {
+        console.warn("API_KEY not found. Using fallback summary.");
+        // If no API key, return a simple summary of the fetched text or mock
+        return {
+            summary: `[Resumo Simulado] ${newsText.substring(0, 150)}... (Configure o Gemini para resumos reais)`,
+            imageUrl: imageUrl
+        };
     }
 
     try {
-        const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-        const newsText = MOCK_NEWS_DATA[source];
+        const genAI = new GoogleGenerativeAI(apiKey);
 
         const prompt = `Você é um analista sênior especializado em infraestrutura e transportes no Brasil. Sua tarefa é resumir a seguinte notícia da ${source} de forma clara e objetiva para profissionais do setor. Comece com uma frase de impacto que capture a essência da notícia. Em seguida, liste os 3 pontos-chave em formato de bullet points (usando '-'). Seja conciso e direto. Notícia: '${newsText}'`;
 
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        return response.text().trim();
+        return {
+            summary: response.text().trim(),
+            imageUrl: imageUrl
+        };
     } catch (error) {
         console.error(`Error summarizing news for ${source}:`, error);
-        throw new Error("Não foi possível gerar o resumo. Tente novamente mais tarde.");
+        return {
+            summary: newsText.substring(0, 160) + "...",
+            imageUrl: imageUrl
+        };
     }
 };

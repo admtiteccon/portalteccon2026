@@ -8,15 +8,15 @@ import { MapIcon } from './icons/MapIcon';
 import { useAuth } from '../hooks/useAuth';
 
 const appLinks: AppLink[] = [
-  { name: "Gestão de Combustíveis", icon: BuildingIcon, url: "#" },
+  { name: "InventárioTI", icon: BuildingIcon, url: "#" },
   { name: "App Meeting", icon: CalendarIcon, url: "#" },
-  { name: "Normas Técnicas", icon: DocIcon, url: "#" },
-  { name: "Mapas e Rotas", icon: MapIcon, url: "#" },
+  { name: "NotebookLM", icon: DocIcon, url: "#" },
+  { name: "Mapas e Rotas", icon: MapIcon, url: "https://www.infraestrutura.pi.gov.br/wp-content/uploads/2021/04/MAPA-RODOVIARIO-PI-2021.pdf" },
 ];
 
 interface AppCardProps {
-    link: AppLink;
-    onClick: () => void;
+  link: AppLink;
+  onClick: () => void;
 }
 
 const AppCard: React.FC<AppCardProps> = ({ link, onClick }) => (
@@ -34,23 +34,23 @@ const AppCard: React.FC<AppCardProps> = ({ link, onClick }) => (
 );
 
 interface AppGridProps {
-    openLoginModal: () => void;
+  openLoginModal: () => void;
 }
 
 export const AppGrid: React.FC<AppGridProps> = ({ openLoginModal }) => {
   const { user } = useAuth();
 
   const handleAppClick = (link: AppLink) => {
-      if (user) {
-          // If user is logged in, you can navigate or perform an action
-          // For now, links are "#", so this is just a placeholder action.
-          alert(`Acessando ${link.name}... (Funcionalidade a ser implementada)`);
-          // In a real app, you would navigate:
-          // window.location.href = link.url;
-      } else {
-          // If not logged in, open the login modal
-          openLoginModal();
-      }
+    if (user) {
+      // If user is logged in, you can navigate or perform an action
+      // For now, links are "#", so this is just a placeholder action.
+      alert(`Acessando ${link.name}... (Funcionalidade a ser implementada)`);
+      // In a real app, you would navigate:
+      // window.location.href = link.url;
+    } else {
+      // If not logged in, open the login modal
+      openLoginModal();
+    }
   };
 
   return (

@@ -26,3 +26,7 @@ export interface Holiday {
   name: string;
   type: string;
 }
+export interface NewsData {
+  summary: string;
+  imageUrl?: string;
+}
