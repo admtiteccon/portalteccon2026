@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NewsSource } from "../types";
 
 const MOCK_NEWS_DATA: Record<NewsSource, string> = {
@@ -19,17 +19,15 @@ export const summarizeNews = async (source: NewsSource): Promise<string> => {
     }
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const genAI = new GoogleGenerativeAI(process.env.API_KEY);
         const newsText = MOCK_NEWS_DATA[source];
-        
+
         const prompt = `Você é um analista sênior especializado em infraestrutura e transportes no Brasil. Sua tarefa é resumir a seguinte notícia da ${source} de forma clara e objetiva para profissionais do setor. Comece com uma frase de impacto que capture a essência da notícia. Em seguida, liste os 3 pontos-chave em formato de bullet points (usando '-'). Seja conciso e direto. Notícia: '${newsText}'`;
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-        });
-
-        return response.text.trim();
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        return response.text().trim();
     } catch (error) {
         console.error(`Error summarizing news for ${source}:`, error);
         throw new Error("Não foi possível gerar o resumo. Tente novamente mais tarde.");
