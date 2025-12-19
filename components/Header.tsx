@@ -22,13 +22,24 @@ const RadioPlayer: React.FC = () => {
   useEffect(() => {
     const fetchPlaylist = async () => {
       try {
+        console.log('Fetching playlist from /api/get-playlist...');
         const response = await fetch('/api/get-playlist');
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
+        console.log('Playlist loaded:', data);
+
         if (Array.isArray(data) && data.length > 0) {
           setPlaylist(data);
+        } else {
+          console.warn('Playlist is empty or invalid format');
         }
       } catch (error) {
-        console.error('Failed to load radio playlist:', error);
+        console.error('Failed to load radio playlist from API:', error);
+        // Fallback or retry logic can be added here
       }
     };
     fetchPlaylist();
@@ -70,7 +81,8 @@ const RadioPlayer: React.FC = () => {
   };
 
   const currentTrack = playlist[currentIndex];
-  const audioSrc = currentTrack?.url || "https://icecast-qmusic.web.triple-it.nl/qmusic.mp3";
+  // Fallback para uma rádio de streaming real e estável
+  const audioSrc = currentTrack?.url || "https://streaming.radio.co/s6c016928e/listen";
 
 
   return (
@@ -79,6 +91,9 @@ const RadioPlayer: React.FC = () => {
         ref={audioRef}
         src={audioSrc}
         onEnded={handleEnded}
+        onError={(e) => console.error("Audio error:", e)}
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
         preload="auto"
       />
 

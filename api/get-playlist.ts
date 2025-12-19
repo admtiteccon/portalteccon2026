@@ -4,6 +4,7 @@ import axios from 'axios';
 // Utilizando a API Key do Gemini (esperando que o Drive API esteja habilitado no mesmo projeto)
 // Ou o usuário pode adicionar GOOGLE_DRIVE_API_KEY no Vercel
 const API_KEY = process.env.API_KEY || process.env.GEMINI_API_KEY;
+console.log('API_KEY present:', !!API_KEY);
 const FOLDER_ID = '1JxtQ372m40Ue4dTXsxS_r5yYI2wkIrsN';
 
 export default async function handler(req: any, res: any) {
@@ -30,8 +31,8 @@ export default async function handler(req: any, res: any) {
         const playlist = files.map((file: any) => ({
             id: file.id,
             name: file.name,
-            // Link de download direto do Google Drive
-            url: `https://docs.google.com/uc?export=download&id=${file.id}`,
+            // URL de stream direto mais confiável
+            url: `https://drive.google.com/uc?export=download&id=${file.id}`,
             mimeType: file.mimeType
         }));
 
