@@ -35,51 +35,30 @@ const RadioAdminPage: React.FC = () => {
                     </div>
 
                     <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700">
-                        <h2 className="text-xl font-semibold mb-6 text-primary">Status da Integração</h2>
+                        <h2 className="text-xl font-semibold mb-6 text-primary">Configuração da Rádio</h2>
 
-                        <div className="grid md:grid-cols-2 gap-8">
+                        <div className="p-6 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 rounded-xl">
+                            <p className="font-bold text-amber-700 dark:text-amber-400 mb-2">Sistema em Transição</p>
+                            <p className="text-sm text-amber-600 dark:text-amber-300">
+                                A integração anterior com o Google Drive foi removida conforme solicitado.
+                                O portal agora está aguardando a configuração de uma nova forma de armazenamento ou streaming independente.
+                            </p>
+                        </div>
+
+                        <div className="mt-8 grid md:grid-cols-2 gap-8">
                             <div className="space-y-4">
-                                <div className="p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 rounded">
-                                    <p className="font-bold text-green-700 dark:text-green-400">Pasta Conectada:</p>
-                                    <p className="text-xs break-all text-green-600 dark:text-green-300 opacity-70 mb-2">ID: {folderId}</p>
-                                    <a
-                                        href={folderLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center text-sm font-semibold text-primary hover:underline"
-                                    >
-                                        Abrir no Google Drive ↗
-                                    </a>
-                                </div>
-
-                                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded">
-                                    <p className="font-bold text-blue-700 dark:text-blue-400">Como funciona:</p>
-                                    <ul className="text-sm list-disc list-inside text-blue-600 dark:text-blue-300 space-y-2 mt-2">
-                                        <li>Arraste arquivos MP3, WAV ou OGG para a pasta.</li>
-                                        <li>O portal detecta novos arquivos automaticamente.</li>
-                                        <li>A programação toca as músicas em sequência.</li>
-                                    </ul>
-                                </div>
+                                <h3 className="font-semibold text-slate-700 dark:text-slate-300">Próximos Passos:</h3>
+                                <ul className="text-sm list-disc list-inside text-slate-600 dark:text-slate-400 space-y-2">
+                                    <li>Definir novo provedor de mídia (Local, S3, Dropbox, etc).</li>
+                                    <li>Configurar URLs de streaming direto.</li>
+                                    <li>Adaptar o player para o novo formato de arquivos.</li>
+                                </ul>
                             </div>
 
-                            <div className="space-y-4">
-                                <h3 className="font-bold text-slate-700 dark:text-slate-300">⚠️ Configuração Importante:</h3>
-                                <p className="text-sm text-slate-500 leading-relaxed">
-                                    Para que o portal consiga ler as músicas, a pasta no Google Drive <strong>deve estar configurada como pública</strong>:
+                            <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+                                <p className="text-xs text-slate-500 italic">
+                                    "A rádio continua funcional com um player de áudio resiliente, aguardando apenas o apontamento para os novos arquivos digitais."
                                 </p>
-                                <ol className="text-sm list-decimal list-inside space-y-2 text-slate-600 dark:text-slate-400">
-                                    <li>Clique com botão direito na pasta no Drive.</li>
-                                    <li>Escolha "Compartilhar".</li>
-                                    <li>Em "Acesso Geral", mude para <strong>"Qualquer pessoa com o link"</strong>.</li>
-                                    <li>Certifique-se de que está como <strong>"Leitor"</strong>.</li>
-                                </ol>
-                                <div className="pt-4">
-                                    <img
-                                        src="https://www.google.com/help/hc/images/drive_share_dialog.png"
-                                        alt="Exemplo Compartilhamento"
-                                        className="rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 opacity-50 grayscale"
-                                    />
-                                </div>
                             </div>
                         </div>
                     </div>

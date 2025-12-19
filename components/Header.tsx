@@ -22,24 +22,25 @@ const RadioPlayer: React.FC = () => {
   useEffect(() => {
     const fetchPlaylist = async () => {
       try {
-        console.log('Fetching playlist from /api/get-playlist...');
+        console.log('Tentando carregar rádio...');
         const response = await fetch('/api/get-playlist');
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          // No ambiente local (npm run dev), a pasta /api não funciona.
+          if (response.status === 404 || response.status === 500) {
+            console.warn('Playlist não encontrada (ambiente local ou sem arquivos). Usando rádio de backup.');
+            return;
+          }
+          throw new Error(`Erro na API: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('Playlist loaded:', data);
-
         if (Array.isArray(data) && data.length > 0) {
+          console.log('Playlist carregada:', data);
           setPlaylist(data);
-        } else {
-          console.warn('Playlist is empty or invalid format');
         }
       } catch (error) {
-        console.error('Failed to load radio playlist from API:', error);
-        // Fallback or retry logic can be added here
+        console.error('Erro ao buscar playlist (Ambiente Local?):', error);
       }
     };
     fetchPlaylist();
@@ -81,8 +82,8 @@ const RadioPlayer: React.FC = () => {
   };
 
   const currentTrack = playlist[currentIndex];
-  // Fallback para uma rádio de streaming real e estável
-  const audioSrc = currentTrack?.url || "https://streaming.radio.co/s6c016928e/listen";
+  // URL direta fornecida pelo usuário
+  const audioSrc = currentTrack?.url || "https://inventario.tiserver.sbs/Goiás_saltou_11_posições_em_rodovias.m4a";
 
 
   return (
@@ -213,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({ toggleTheme, currentTheme, openL
             O <strong>{APP_CONFIG.NAME}</strong> é um portal de acesso centralizado a aplicativos e informações úteis para profissionais do setor de construção civil e transportes.
           </p>
           <p>
-            Nosso objetivo é agilizar o dia a dia, oferecendo ferramentas como cotações de moedas em tempo real e resumos de notícias dos principais órgãos do setor, gerados por Inteligência Artificial para uma leitura rápida e eficiente.
+            Nosso objetivo é agilizar o dia a dia, oferecendo ferramentas como cotações de moedas em tempo real e resumos das notícias mais relevantes dos principais órgãos do setor para uma leitura rápida e eficiente.
           </p>
           <div>
             <h3 className="font-semibold text-slate-700 dark:text-slate-200 mb-2">Contato</h3>
